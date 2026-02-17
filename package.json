@@ -18,7 +18,7 @@
   "author": "",
   "license": "MIT",
   "bin": {
-    "agent": "bin/agent.js"
+    "ppagent": "bin/ppagent.js"
   },
   "engines": {
     "node": ">=20"

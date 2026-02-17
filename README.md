@@ -21,8 +21,8 @@ npm run dev
 | `npm run dev` | Kör med hot-reload (tsx) |
 | `npm run build` | Kompilera TypeScript → `dist/` |
 | `npm start` | Kör `dist/index.js`        |
-| `npm run agent` | Starta agenten (interaktiv chat) |
-| `npm run agent -- "fråga"` | En fråga till agenten |
+| `ppagent start` | Starta agenten (interaktiv chat) |
+| `ppagent start "fråga"` | En fråga till agenten |
 | `npm run agent:skills` | Lista installerade skills |
 | `npm run agent:install -- <mapp>` | Installera en skill från mapp |
 | `npm run typecheck` | Typkontroll utan build |
@@ -32,9 +32,9 @@ npm run dev
 
 Agenten pratar med en LLM (OpenAI eller kompatibel API) och har tillgång till **tools**: `read_file`, `write_file`, `list_dir`, `run_command`. Sätt `OPENAI_API_KEY` i `.env` (se `.env.example`).
 
-- **Kort kommando**: Kör `npm link` i projektmappen – då kan du starta agenten med bara `agent` var som helst.
-- **Interaktiv**: `agent` eller `npm run agent` → skriv meddelanden direkt, avsluta med `exit`.
-- **En fråga**: `agent "list filer i src"`.
+- **Kort kommando**: Kör `npm link` i projektmappen – då kan du starta agenten med `ppagent start` var som helst.
+- **Interaktiv**: `ppagent start` → skriv meddelanden direkt, avsluta med `exit`.
+- **En fråga**: `ppagent start "list filer i src"`.
 
 ## Skills
 
