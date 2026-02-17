@@ -1,0 +1,36 @@
+{
+  "name": "pp-agent",
+  "version": "0.1.0",
+  "description": "AI agent for fullstack development (TypeScript, Node.js, DevOps)",
+  "type": "module",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "agent": "tsx src/cli.ts",
+    "agent:install": "tsx src/commands/install-skill.ts",
+    "agent:skills": "tsx src/commands/list-skills.ts",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": ["agent", "fullstack", "typescript", "devops"],
+  "author": "",
+  "license": "MIT",
+  "bin": {
+    "agent": "bin/agent.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "eslint": "^9.15.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "openai": "^4.73.0"
+  }
+}

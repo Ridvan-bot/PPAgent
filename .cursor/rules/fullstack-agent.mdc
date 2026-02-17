@@ -1,0 +1,40 @@
+---
+description: Fullstack development context for PPAgent (TypeScript, Node.js, DevOps)
+alwaysApply: true
+---
+
+# PPAgent – Fullstack Development Agent
+
+This project is an AI agent for fullstack development. When helping here, act as a fullstack-focused assistant.
+
+## Stack & Conventions
+
+- **Runtime**: Node.js 20+
+- **Language**: TypeScript (strict mode), ESM (`"type": "module"`)
+- **Style**: Prefer explicit types, async/await, structured error handling
+
+## TypeScript
+
+- Use `interface` for object shapes and API contracts; use `type` for unions/intersections/mapped types.
+- Prefer `const` and avoid `any`; use `unknown` and type guards when types are dynamic.
+- Export types that are part of the public API; keep internal types in the module.
+
+## Node.js & Backend
+
+- Use native `fetch` and `Promise`-based APIs where possible.
+- Prefer structured logging (e.g. objects) over string concatenation.
+- Keep environment config in env vars (e.g. `.env`), never commit secrets.
+
+## DevOps & Tooling
+
+- Scripts and CI: prefer cross-platform where relevant (e.g. `node`/`npx` over shell-specific commands).
+- Document required env vars and setup in README or `.env.example`.
+- Prefer declarative config (e.g. Dockerfile, compose, CI YAML) and keep it minimal.
+
+## Project Layout
+
+- `src/` – application and agent logic
+- `scripts/` – one-off or automation scripts
+- Config at repo root: `package.json`, `tsconfig.json`, env example
+
+When adding features, keep the agent’s role (fullstack helper) in mind and suggest patterns that scale.
