@@ -1,0 +1,20 @@
+# Semantic Release – använder shared workflow från Ridvan-bot/workflows
+# Körs vid push till main; uppdaterar version, CHANGELOG och taggar enligt conventional commits.
+# Kräver: conventional commits (feat:, fix:, chore:, etc.) på main.
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  semantic-release:
+    uses: Ridvan-bot/workflows/.github/workflows/semantic-release.yml@main
+    with:
+      branches: main
+      releaserc_path: .releaserc.json
+      slack_enabled: false
+      npm_publish_enabled: false
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}

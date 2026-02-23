@@ -129,6 +129,16 @@ PPAgent/
 | `OPENAI_BASE_URL` | Valfri bas-URL för kompatibel API |
 | `OPENAI_MODEL` | Modell (standard: `gpt-4o-mini`) |
 
+## Releaser (Semantic Release)
+
+Version, CHANGELOG och GitHub-releases uppdateras automatiskt vid push till `main` via [Ridvan-bot/workflows](https://github.com/Ridvan-bot/workflows) (semantic-release). Använd [Conventional Commits](https://www.conventionalcommits.org/) på main:
+
+- `feat:` → ny minor-version (t.ex. 0.1.0 → 0.2.0)
+- `fix:` / `perf:` → ny patch-version (t.ex. 0.1.0 → 0.1.1)
+- `chore:`, `docs:`, `ci:` → ingen release (men committas)
+
+Workflow: `.github/workflows/release.yml`. Konfiguration: `.releaserc.json`.
+
 ## Licens
 
 MIT
