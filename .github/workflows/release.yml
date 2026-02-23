@@ -1,21 +1,18 @@
-# Semantic Release – använder shared workflow från Ridvan-bot/workflows
-# Körs vid push till main; uppdaterar version, CHANGELOG och taggar enligt conventional commits.
-# Kräver: conventional commits (feat:, fix:, chore:, etc.) på main.
-
-name: Release
+# Trigger Semantic Release – anropar Ridvan-bot/workflows (samma mönster som i fungerande repo)
+name: Trigger Semantic Release
 
 on:
   push:
     branches: [main]
 
 jobs:
-  semantic-release:
+  execute-semantic-release:
     uses: Ridvan-bot/workflows/.github/workflows/semantic-release.yml@main
     permissions:
       contents: write
     with:
       branches: main
       slack_enabled: false
-      npm_publish_enabled: false
     secrets:
       token: ${{ secrets.GITHUB_TOKEN }}
+      slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
