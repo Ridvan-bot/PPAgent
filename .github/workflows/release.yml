@@ -28,7 +28,7 @@ jobs:
       - name: No release
         run: echo "Branch is not main, no need to release."
 
-  # Execute semantic release only if branches is "main"
+  # Execute semantic release only if branches is "main "
   execute-semantic-release:
     if: ${{ inputs.branches == 'main' }}
     uses: Ridvan-bot/workflows/.github/workflows/semantic-release.yml@main
