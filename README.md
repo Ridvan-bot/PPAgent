@@ -75,6 +75,20 @@ Valfritt: **index.js** i skill-mappen som exporterar `tools` och/eller `systemPr
 - **Lista**: `npm run agent:skills`
 - **Installera** (kopiera till `skills/`): `npm run agent:install -- <sökväg-till-skill-mapp>`
 
+## Sessioner (konversationer)
+
+Konversationer sparas under **`.agents/sessions/`**, en session per sammanhang:
+
+- **Terminal** – en och samma session (`terminal`) används alltid i terminalen. All konversation sparas i den så att historiken följer med mellan omstarter.
+- **Slack** (framtida) – vid koppling mot Slack blir varje kanal/grupp en egen session.
+
+Varje session är en mapp (t.ex. `terminal/` för terminalen) innehållande:
+
+- **session.json** – id, typ, createdAt, updatedAt, valfritt meta (t.ex. channelId för Slack)
+- **messages.json** – lista med `{ role, content, at }` för varje användar- och assistentmeddelande
+
+Mappen `.agents/sessions/` är i `.gitignore` så att konversationer inte committas.
+
 ## Logg
 
 Aktivitet loggas till **`logs/ppagent.log`** (skapas automatiskt). Kategorier: `cli`, `agent`, `tool`, `skills`, `command`, `error`. Mappen `logs/` är i `.gitignore`.
@@ -85,7 +99,8 @@ Aktivitet loggas till **`logs/ppagent.log`** (skapas automatiskt). Kategorier: `
 PPAgent/
 ├── .agents/
 │   ├── rules/       # Regler (rules.md m.fl.) – används i system-prompt
-│   └── skills/      # Skills (t.ex. agent-slack) – laddas automatiskt
+│   ├── skills/      # Skills (t.ex. agent-slack) – laddas automatiskt
+│   └── sessions/    # Konversationer per session (terminal, Slack m.m.)
 ├── bin/
 │   └── ppagent.js   # CLI-binär (ppagent start)
 ├── logs/            # ppagent.log (skapas vid körning)
@@ -95,6 +110,7 @@ PPAgent/
 │   ├── agent.ts     # LLM-loop + tool-anrop
 │   ├── config.ts    # Env (OPENAI_API_KEY m.m.)
 │   ├── rules.ts     # Laddning av regler från .agents/rules / rules/
+│   ├── sessions.ts  # Sessioner: spara konversationer under .agents/sessions/
 │   ├── tools/       # read_file, write_file, list_dir, run_command
 │   ├── skills/      # Skill-loader (skills/ + .agents/skills/)
 │   └── commands/    # agent:install, agent:skills

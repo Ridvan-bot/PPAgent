@@ -9,6 +9,7 @@ import { loadConfig } from "./config.js";
 import { builtinTools } from "./tools/index.js";
 import { loadAllSkills, buildSystemPrompt, collectTools } from "./skills/loader.js";
 import { loadRules, formatRulesForPrompt } from "./rules.js";
+import { getOrCreateSession, appendToSession, getSessionMessages } from "./sessions.js";
 import { runAgent } from "./agent.js";
 import { logCli, logError } from "./logger.js";
 
@@ -44,21 +45,34 @@ async function main(): Promise<void> {
 
   if (singleQuestion) {
     logCli("User message (single)", { message: singleQuestion });
+    const session = await getOrCreateSession("terminal");
+    const stored = await getSessionMessages(session.id, 100);
+    const conversationHistory = stored.map((m) => ({ role: m.role, content: m.content }));
     const { content } = await runAgent(
       { config, tools, systemPrompt },
-      singleQuestion
+      singleQuestion,
+      conversationHistory
     );
-    logCli("Agent response (single)", { length: content.length });
+    await appendToSession(session.id, [
+      { role: "user", content: singleQuestion },
+      { role: "assistant", content },
+    ]);
+    logCli("Agent response (single)", { length: content.length, sessionId: session.id });
     console.log(content);
     logCli("CLI finished (single)");
     return;
   }
 
   const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-  const conversationHistory: import("./agent.js").Message[] = [];
-  logCli("Interactive session started");
+  const session = await getOrCreateSession("terminal");
+  const stored = await getSessionMessages(session.id, 100);
+  const conversationHistory: import("./agent.js").Message[] = stored.map((m) => ({
+    role: m.role,
+    content: m.content,
+  }));
+  logCli("Interactive session started", { sessionId: session.id, historyMessages: conversationHistory.length });
   console.log("PPAgent – interaktiv chat. Skriv meddelanden här, avsluta med 'exit'.");
-  console.log("Skills:", skills.map((s) => s.meta.name).join(", ") || "inga");
+  console.log("Session:", session.id, "| Historik:", conversationHistory.length, "meddelanden | Skills:", skills.map((s) => s.meta.name).join(", ") || "inga");
   console.log("");
 
   while (true) {
@@ -79,6 +93,10 @@ async function main(): Promise<void> {
     );
     conversationHistory.length = 0;
     conversationHistory.push(...messages);
+    await appendToSession(session.id, [
+      { role: "user", content: input },
+      { role: "assistant", content },
+    ]);
     logCli("Agent response", { length: content.length });
     console.log("\n" + content);
   }

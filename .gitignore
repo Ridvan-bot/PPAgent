@@ -11,3 +11,4 @@ nul
 coverage/
 *.tsbuildinfo
 *-lock.json
+.agents/sessions/
