@@ -13,7 +13,6 @@ jobs:
     uses: Ridvan-bot/workflows/.github/workflows/semantic-release.yml@main
     with:
       branches: main
-      releaserc_path: .releaserc.json
       slack_enabled: false
       npm_publish_enabled: false
     secrets:
