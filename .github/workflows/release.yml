@@ -1,31 +1,18 @@
-# Semantic Release – kör lokalt med fetch-depth: 0 (krävs för giltiga commit-datum)
-# Den delade Ridvan-bot/workflows gör shallow clone → "Invalid time value". Fixa där med fetch-depth: 0 för att använda den igen.
-name: Release
+
+name: Trigger Semantic Release
 
 on:
   push:
     branches: [main]
 
 jobs:
-  release:
-    runs-on: ubuntu-22.04
+  execute-semantic-release:
+    uses: Ridvan-bot/workflows/.github/workflows/semantic-release.yml@main
     permissions:
       contents: write
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run Semantic Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+    with:
+      branches: main
+      slack_enabled: false
+    secrets:
+      token: ${{ secrets.GITHUB_TOKEN }}
+      slack_webhook: ${{ secrets.SLACK_WEBHOOK }}
