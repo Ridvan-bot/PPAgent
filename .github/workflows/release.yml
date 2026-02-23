@@ -11,6 +11,8 @@ on:
 jobs:
   semantic-release:
     uses: Ridvan-bot/workflows/.github/workflows/semantic-release.yml@main
+    permissions:
+      contents: write
     with:
       branches: main
       slack_enabled: false
