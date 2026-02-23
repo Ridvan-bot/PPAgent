@@ -18,7 +18,7 @@ jobs:
       #token: ${{ secrets.GH_TOKEN }}
 
   execute-release:
-    #needs: execute-code-quality-validation
+    #needs: execute-code-quality-validation 
     uses: ./.github/workflows/release.yml
     with:
       branches: "${{ github.ref_name }}"
