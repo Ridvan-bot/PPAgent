@@ -12,7 +12,7 @@ import { loadRules, formatRulesForPrompt } from "./rules.js";
 import { runAgent } from "./agent.js";
 import { logCli, logError } from "./logger.js";
 
-const BASE_SYSTEM_PROMPT = `You are PPAgent, an AI assistant for fullstack development (TypeScript, Node.js, DevOps).
+const BASE_SYSTEM_PROMPT = `You are PPAgent, an AI assistant.
 You have access to tools: read_file, write_file, list_dir, run_command. Use them when you need to read/write files, list directories, or run shell commands.
 Answer concisely. When suggesting code, use the project's existing style and dependencies.`;
 

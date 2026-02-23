@@ -1,7 +1,7 @@
 {
   "name": "pp-agent",
   "version": "0.1.0",
-  "description": "AI agent for fullstack development (TypeScript, Node.js, DevOps)",
+  "description": "AI assistant – runs in the terminal with interactive chat",
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
@@ -16,9 +16,9 @@
   },
   "keywords": [
     "agent",
-    "fullstack",
-    "typescript",
-    "devops"
+    "assistant",
+    "terminal",
+    "chat"
   ],
   "author": "",
   "license": "MIT",
