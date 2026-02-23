@@ -63,7 +63,7 @@ Regler läses från **`.agents/rules/`** (fallback: **`rules/`**). Alla `.md`-fi
 Skills laddas från två platser (i ordning, första vinner vid samma namn):
 
 1. **`skills/`** – projektets egna eller manuellt installerade skills
-2. **`.agents/skills/`** – t.ex. skills installerade via skills-lock / externa agent-paket
+2. **`.agents/skills/`** – rekommenderad plats: alla agent-skills (t.ex. från [skills.sh](https://skills.sh)) läggs här
 
 Varje skill är en mapp med antingen:
 
@@ -73,7 +73,7 @@ Varje skill är en mapp med antingen:
 Valfritt: **index.js** i skill-mappen som exporterar `tools` och/eller `systemPrompt`.
 
 - **Lista**: `npm run agent:skills`
-- **Installera** (kopiera till `skills/`): `npm run agent:install -- <sökväg-till-skill-mapp>`
+- **Installera** (till `skills/`): `npm run agent:install -- <sökväg-till-skill-mapp>`. För att använda `.agents/skills/` kopiera mappen dit manuellt.
 
 ## Sessioner (konversationer)
 
