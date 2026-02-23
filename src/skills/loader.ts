@@ -1,6 +1,7 @@
 /**
- * Load skills from the project skills directory.
+ * Load skills from the project skills directories.
  * Each skill is a folder with skill.json (or SKILL.md for Cursor-style).
+ * Looks in: skills/ (project skills), then .agents/skills/ (e.g. installed agent skills).
  */
 
 import * as fs from "node:fs/promises";
@@ -10,11 +11,12 @@ import type { LoadedSkill, SkillMeta } from "./types.js";
 import type { Tool } from "../tools/types.js";
 import { logSkills } from "../logger.js";
 
-const SKILLS_DIR = "skills";
+/** Directories to load skills from (cwd-relative). First wins on duplicate name. */
+const SKILLS_DIRS = ["skills", ".agents/skills"];
 
-function getSkillsPath(): string {
+function getSkillsPaths(): string[] {
   const cwd = process.cwd();
-  return path.join(cwd, SKILLS_DIR);
+  return SKILLS_DIRS.map((d) => path.join(cwd, d));
 }
 
 async function parseSkillMetaFromMarkdown(skillDir: string): Promise<SkillMeta | null> {
@@ -77,29 +79,31 @@ async function loadSkillDir(skillDir: string): Promise<LoadedSkill | null> {
 }
 
 export async function loadAllSkills(): Promise<LoadedSkill[]> {
-  const base = getSkillsPath();
-  logSkills("loadAllSkills started", { base });
-  try {
-    const entries = await fs.readdir(base, { withFileTypes: true });
-    const dirs = entries.filter((e) => e.isDirectory() && !e.name.startsWith("."));
-    const loaded: LoadedSkill[] = [];
-    for (const d of dirs) {
-      const skill = await loadSkillDir(path.join(base, d.name));
-      if (skill) {
-        loaded.push(skill);
-        logSkills("skill loaded", { name: skill.meta.name });
+  const allPaths = getSkillsPaths();
+  logSkills("loadAllSkills started", { bases: allPaths });
+  const loadedByName = new Map<string, LoadedSkill>();
+  for (const base of allPaths) {
+    try {
+      const entries = await fs.readdir(base, { withFileTypes: true });
+      const dirs = entries.filter((e) => e.isDirectory() && !e.name.startsWith("."));
+      for (const d of dirs) {
+        const skill = await loadSkillDir(path.join(base, d.name));
+        if (skill && !loadedByName.has(skill.meta.name)) {
+          loadedByName.set(skill.meta.name, skill);
+          logSkills("skill loaded", { name: skill.meta.name, from: base });
+        }
       }
+    } catch {
+      // Directory missing (e.g. no .agents/skills yet) is fine
     }
-    logSkills("loadAllSkills finished", { count: loaded.length, names: loaded.map((s) => s.meta.name) });
-    return loaded;
-  } catch (e) {
-    logSkills("loadAllSkills error", { error: e instanceof Error ? e.message : String(e) });
-    return [];
   }
+  const loaded = [...loadedByName.values()];
+  logSkills("loadAllSkills finished", { count: loaded.length, names: loaded.map((s) => s.meta.name) });
+  return loaded;
 }
 
 export function getSkillsDir(): string {
-  return getSkillsPath();
+  return getSkillsPaths()[0] ?? path.join(process.cwd(), "skills");
 }
 
 export function buildSystemPrompt(skills: LoadedSkill[], basePrompt: string): string {

@@ -10,3 +10,4 @@ nul
 .vscode/
 coverage/
 *.tsbuildinfo
+*-lock.json

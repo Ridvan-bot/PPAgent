@@ -8,6 +8,7 @@ import * as readline from "node:readline/promises";
 import { loadConfig } from "./config.js";
 import { builtinTools } from "./tools/index.js";
 import { loadAllSkills, buildSystemPrompt, collectTools } from "./skills/loader.js";
+import { loadRules, formatRulesForPrompt } from "./rules.js";
 import { runAgent } from "./agent.js";
 import { logCli, logError } from "./logger.js";
 
@@ -31,9 +32,14 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
+  const rulesContent = await loadRules();
+  const rulesBlock = formatRulesForPrompt(rulesContent);
+  if (rulesContent) logCli("Rules loaded", { length: rulesContent.length });
+
   const skills = await loadAllSkills();
   logCli("Skills loaded", { count: skills.length, names: skills.map((s) => s.meta.name) });
-  const systemPrompt = buildSystemPrompt(skills, BASE_SYSTEM_PROMPT);
+  const baseWithRules = BASE_SYSTEM_PROMPT + rulesBlock;
+  const systemPrompt = buildSystemPrompt(skills, baseWithRules);
   const tools = collectTools(skills, builtinTools);
 
   if (singleQuestion) {
