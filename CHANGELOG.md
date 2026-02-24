@@ -1,3 +1,9 @@
+## [1.0.1](https://github.com/Ridvan-bot/PPAgent/compare/v1.0.0...v1.0.1) (2026-02-24)
+
+### Bug Fixes
+
+* correct comment in release workflow to ensure proper branch check for semantic release ([1a6ed9c](https://github.com/Ridvan-bot/PPAgent/commit/1a6ed9ca1dfa515f2f723a9c8a6318c8cac16622))
+
 ## 1.0.0 (2026-02-23)
 
 * fix: add contents write permission for semantic-release push ([a7f65a6](https://github.com/Ridvan-bot/PPAgent/commit/a7f65a6))
