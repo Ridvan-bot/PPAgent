@@ -19,6 +19,8 @@ jobs:
 
   execute-release:
     #needs: execute-code-quality-validation
+    permissions:
+      contents: write
     uses: ./.github/workflows/release.yml
     with:
       branches: "${{ github.ref_name }}"
