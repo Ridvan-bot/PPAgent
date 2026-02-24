@@ -1,6 +1,6 @@
 {
   "name": "pp-agent",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "AI assistant – runs in the terminal with interactive chat",
   "type": "module",
   "main": "dist/index.js",

@@ -1,3 +1,9 @@
+## [1.0.2](https://github.com/Ridvan-bot/PPAgent/compare/v1.0.1...v1.0.2) (2026-02-24)
+
+### Bug Fixes
+
+* correct formatting in README for Miljövariabler section ([ae9a84f](https://github.com/Ridvan-bot/PPAgent/commit/ae9a84f9db594cd44c99c36a2dc97462055f7fe6))
+
 ## [1.0.1](https://github.com/Ridvan-bot/PPAgent/compare/v1.0.0...v1.0.1) (2026-02-24)
 
 ### Bug Fixes
