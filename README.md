@@ -121,7 +121,7 @@ PPAgent/
 └── README.md
 ```
 
-## Miljövariabler
+## Miljövariabler 
 
 | Variabel | Beskrivning |
 |----------|--------------|
