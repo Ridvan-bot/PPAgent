@@ -1,144 +1,153 @@
 # PPAgent
 
-AI-assistent som körs i terminalen med interaktiv chat eller enskilda frågor.
+AI assistant that runs in the terminal with interactive chat or one-off questions.
 
-## Krav
+## Requirements
 
 - Node.js 20+
-- npm (eller pnpm/yarn)
+- npm (or pnpm/yarn)
 
-## Snabbstart
+## Quick start
 
 ```bash
 npm install
 ```
 
-Skapa `.env` i projektroten:
+Create `.env` in the project root:
 
 ```env
 OPENAI_API_KEY=sk-...
-# Valfritt: OPENAI_BASE_URL=https://...  OPENAI_MODEL=gpt-4o-mini
+# Optional: OPENAI_BASE_URL=https://...  OPENAI_MODEL=gpt-4o-mini
 ```
 
-Starta agenten:
+Start the agent:
 
 ```bash
 npm run agent
-# eller, efter npm link:  ppagent start
+# or, after npm link:  ppagent start
 ```
 
-Skriv meddelanden i terminalen och avsluta med `exit` eller `quit`. En enskild fråga: `npm run agent "list filer i src"` eller `ppagent start "list filer i src"`.
+Type messages in the terminal and exit with `exit` or `quit`. For a single question: `npm run agent "list files in src"` or `ppagent start "list files in src"`.
 
-## Skript
+## Scripts
 
-| Kommando | Beskrivning |
-|----------|--------------|
-| `npm run dev` | Kör med hot-reload (tsx) |
-| `npm run build` | Kompilera TypeScript → `dist/` |
-| `npm start` | Kör `dist/index.js` (startar samma interaktiva chat) |
-| `npm run agent` | Starta agenten (interaktiv chat eller ett argument = en fråga) |
-| `ppagent start` | Som ovan (kräver `npm link` i projektmappen) |
-| `ppagent start "fråga"` | En fråga till agenten |
-| `npm run agent:skills` | Lista installerade skills |
-| `npm run agent:install -- <mapp>` | Installera en skill från mapp till `skills/` |
-| `npm run typecheck` | Typkontroll utan build |
-| `npm run lint` | ESLint mot `src/` |
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Run with hot-reload (tsx) |
+| `npm run build` | Compile TypeScript → `dist/` |
+| `npm start` | Run `dist/index.js` (starts the same interactive chat) |
+| `npm run agent` | Start the agent (interactive chat or one argument = one question) |
+| `ppagent start` | Same as above (requires `npm link` in project folder) |
+| `ppagent start "question"` | One question to the agent |
+| `npm run agent:skills` | List installed skills |
+| `npm run agent:install -- <path>` | Install a skill from folder into `skills/` |
+| `npm run typecheck` | Type-check without building |
+| `npm run lint` | ESLint on `src/` |
 
-## Agenten
+## The agent
 
-Agenten använder en LLM (OpenAI eller kompatibel API) och har **tools**: `read_file`, `write_file`, `list_dir`, `run_command`. Den laddar **regler** och **skills** vid start och injicerar dem i system-prompten.
+The agent uses an LLM (OpenAI or compatible API) and has **tools**: `read_file`, `write_file`, `list_dir`, `run_command`. It loads **rules** and **skills** at startup and injects them into the system prompt.
 
-- **Regler** – styr hur agenten svarar (t.ex. ton, förbud). Läs mer under [Regler](#regler).
-- **Skills** – utökar med extra system-prompt och (vid behov) egna tools. Läs mer under [Skills](#skills).
+- **Rules** – control how the agent responds (e.g. tone, restrictions). See [Rules](#rules).
+- **Skills** – extend with extra system prompt and (optionally) custom tools. See [Skills](#skills).
 
-## Regler
+## Rules
 
-Regler läses från **`.agents/rules/`** (fallback: **`rules/`**). Alla `.md`-filer används; innehållet läggs in i system-prompten under "Regler du måste följa".
+Rules are loaded from **`.agents/rules/`** (fallback: **`rules/`**). All `.md` files are used; their content is added to the system prompt under "Rules you must follow".
 
-- Lägg t.ex. `rules.md` i `.agents/rules/` med dina riktlinjer.
-- Uppdatera filerna när som helst; de laddas vid varje agent-start.
+- Add e.g. `rules.md` in `.agents/rules/` with your guidelines.
+- Update the files anytime; they are loaded on every agent start.
 
 ## Skills
 
-Skills laddas från två platser (i ordning, första vinner vid samma namn):
+Skills are loaded from two locations (in order; first wins for the same name):
 
-1. **`skills/`** – projektets egna eller manuellt installerade skills
-2. **`.agents/skills/`** – rekommenderad plats: alla agent-skills (t.ex. från [skills.sh](https://skills.sh)) läggs här
+1. **`skills/`** – project-owned or manually installed skills
+2. **`.agents/skills/`** – recommended: put all agent skills (e.g. from [skills.sh](https://skills.sh)) here
 
-Varje skill är en mapp med antingen:
+Each skill is a folder with either:
 
-- **skill.json** – `name`, `description`, valfritt `systemPrompt`
-- **SKILL.md** (Cursor-format) – frontmatter med `name`/`description`, brödtexten används som system-prompt
+- **skill.json** – `name`, `description`, optional `systemPrompt`
+- **SKILL.md** (Cursor format) – frontmatter with `name`/`description`; body used as system prompt
 
-Valfritt: **index.js** i skill-mappen som exporterar `tools` och/eller `systemPrompt`.
+Optional: **index.js** in the skill folder exporting `tools` and/or `systemPrompt`.
 
-- **Lista**: `npm run agent:skills`
-- **Installera** (till `skills/`): `npm run agent:install -- <sökväg-till-skill-mapp>`. För att använda `.agents/skills/` kopiera mappen dit manuellt.
+- **List**: `npm run agent:skills`
+- **Install** (into `skills/`): `npm run agent:install -- <path-to-skill-folder>`. To use `.agents/skills/`, copy the folder there manually.
 
-## Sessioner (konversationer)
+## Sessions (conversations)
 
-Konversationer sparas under **`.agents/sessions/`**, en session per sammanhang:
+Conversations are stored under **`.agents/sessions/`**, one session per context:
 
-- **Terminal** – en och samma session (`terminal`) används alltid i terminalen. All konversation sparas i den så att historiken följer med mellan omstarter.
-- **Slack** (framtida) – vid koppling mot Slack blir varje kanal/grupp en egen session.
+- **Terminal** – a single session (`terminal`) is used for the terminal. All conversation is saved there so history persists across restarts.
+- **Slack** (planned) – when connected to Slack, each channel/group will be its own session.
 
-Varje session är en mapp (t.ex. `terminal/` för terminalen) innehållande:
+Each session is a folder (e.g. `terminal/` for the terminal) containing:
 
-- **session.json** – id, typ, createdAt, updatedAt, valfritt meta (t.ex. channelId för Slack)
-- **messages.json** – lista med `{ role, content, at }` för varje användar- och assistentmeddelande
+- **session.json** – id, type, createdAt, updatedAt, optional meta (e.g. channelId for Slack)
+- **messages.json** – list of `{ role, content, at }` for each user and assistant message
 
-Mappen `.agents/sessions/` är i `.gitignore` så att konversationer inte committas.
+The `.agents/sessions/` folder is in `.gitignore` so conversations are not committed.
 
-## Logg
+## Logging
 
-Aktivitet loggas till **`logs/ppagent.log`** (skapas automatiskt). Kategorier: `cli`, `agent`, `tool`, `skills`, `command`, `error`. Mappen `logs/` är i `.gitignore`.
+Activity is logged to **`logs/ppagent.log`** (created automatically). Categories: `cli`, `agent`, `tool`, `skills`, `command`, `error`. The `logs/` folder is in `.gitignore`.
 
-## Projektstruktur
+## Project structure
 
 ```
 PPAgent/
 ├── .agents/
-│   ├── rules/       # Regler (rules.md m.fl.) – används i system-prompt
-│   ├── skills/      # Skills (t.ex. agent-slack) – laddas automatiskt
-│   └── sessions/    # Konversationer per session (terminal, Slack m.m.)
+│   ├── rules/       # Rules (rules.md etc.) – used in system prompt
+│   ├── skills/      # Skills (e.g. agent-slack) – loaded automatically
+│   └── sessions/    # Conversations per session (terminal, Slack, etc.)
 ├── bin/
-│   └── ppagent.js   # CLI-binär (ppagent start)
-├── logs/            # ppagent.log (skapas vid körning)
+│   └── ppagent.js   # CLI binary (ppagent start)
+├── logs/            # ppagent.log (created at runtime)
 ├── src/
-│   ├── index.ts     # Entry point → startar CLI/chat
-│   ├── cli.ts       # Interaktiv chat, laddar regler + skills
-│   ├── agent.ts     # LLM-loop + tool-anrop
-│   ├── config.ts    # Env (OPENAI_API_KEY m.m.)
-│   ├── rules.ts     # Laddning av regler från .agents/rules / rules/
-│   ├── sessions.ts  # Sessioner: spara konversationer under .agents/sessions/
+│   ├── index.ts     # Entry point → starts CLI/chat
+│   ├── cli.ts       # Interactive chat, loads rules + skills
+│   ├── agent.ts     # LLM loop + tool calls
+│   ├── config.ts    # Env (OPENAI_API_KEY etc.)
+│   ├── rules.ts     # Load rules from .agents/rules / rules/
+│   ├── sessions.ts  # Sessions: save conversations under .agents/sessions/
 │   ├── tools/       # read_file, write_file, list_dir, run_command
-│   ├── skills/      # Skill-loader (skills/ + .agents/skills/)
+│   ├── skills/      # Skill loader (skills/ + .agents/skills/)
 │   └── commands/    # agent:install, agent:skills
-├── skills/          # Installerade skills (agent:install kopierar hit)
+├── skills/          # Installed skills (agent:install copies here)
 ├── scripts/
 ├── package.json
 ├── tsconfig.json
 └── README.md
 ```
 
-## Miljövariabler 
+## Environment variables
 
-| Variabel | Beskrivning |
-|----------|--------------|
-| `OPENAI_API_KEY` | API-nyckel (obligatorisk, eller `ANTHROPIC_API_KEY`) |
-| `OPENAI_BASE_URL` | Valfri bas-URL för kompatibel API |
-| `OPENAI_MODEL` | Modell (standard: `gpt-4o-mini`) |
+| Variable | Description |
+|----------|-------------|
+| `OPENAI_API_KEY` | API key (required, or `ANTHROPIC_API_KEY`) |
+| `OPENAI_BASE_URL` | Optional base URL for compatible API |
+| `OPENAI_MODEL` | Model (default: `gpt-4o-mini`) |
 
-## Releaser (Semantic Release)
+## Releases (Semantic Release)
 
-Version, CHANGELOG och GitHub-releases uppdateras automatiskt vid push till `main` via [Ridvan-bot/workflows](https://github.com/Ridvan-bot/workflows) (semantic-release). Använd [Conventional Commits](https://www.conventionalcommits.org/) på main:
+Version, CHANGELOG, and GitHub releases are updated automatically on push to `main` via [Ridvan-bot/workflows](https://github.com/Ridvan-bot/workflows) (semantic-release). Use [Conventional Commits](https://www.conventionalcommits.org/) on main:
 
-- `feat:` → ny minor-version (t.ex. 0.1.0 → 0.2.0)
-- `fix:` / `perf:` → ny patch-version (t.ex. 0.1.0 → 0.1.1)
-- `chore:`, `docs:`, `ci:` → ingen release (men committas)
+- `feat:` → new minor version (e.g. 0.1.0 → 0.2.0)
+- `fix:` / `perf:` → new patch version (e.g. 0.1.0 → 0.1.1)
+- `chore:`, `docs:`, `ci:` → no release (but commits are kept)
 
-Workflow: `.github/workflows/release.yml`. Konfiguration: `.releaserc.json`.
+Workflow: `.github/workflows/deploy.yml` calls `.github/workflows/release.yml` (which uses Ridvan-bot/workflows semantic-release). Config: `.releaserc.json`.
 
-## Licens
+### Slack notifications
+
+When a release is created, the workflow can send a notification to Slack. You need:
+
+1. **Slack Incoming Webhook** – create a webhook in Slack (e.g. for a channel like #releases) and copy the webhook URL.
+2. **Repository secret** – add the secret `SLACK_WEBHOOK` in the repo (Settings → Secrets and variables → Actions) with the webhook URL as the value.
+
+In this repo Slack is enabled in the deploy workflow (`slack_enabled: true`). If `SLACK_WEBHOOK` is set, messages are sent on successful release; if the secret is missing, the release runs as usual but without a Slack notification.
+
+## License
 
 MIT
