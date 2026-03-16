@@ -46,9 +46,6 @@ function safeSessionId(type: string, suffix: string): string {
   return `${type}-${safe}`;
 }
 
-/** Fixed session id for terminal – all terminal runs share this session. */
-const TERMINAL_SESSION_ID = "terminal";
-
 /**
  * Get or create a session. Terminal always uses the same session id so
  * conversation continues across restarts; other types get their own id per context.
@@ -58,11 +55,9 @@ export async function getOrCreateSession(
   meta?: SessionMeta
 ): Promise<Session> {
   const id =
-    type === "terminal"
-      ? TERMINAL_SESSION_ID
-      : type.startsWith("slack") && meta?.channelId
-        ? safeSessionId(type, meta.channelId)
-        : safeSessionId(type, `${Date.now()}-${randomBytes(2).toString("hex")}`);
+    type.startsWith("slack") && meta?.channelId
+      ? safeSessionId(type, meta.channelId)
+      : safeSessionId(type, `${Date.now()}-${randomBytes(2).toString("hex")}`);
 
   const dir = sessionDir(id);
   const sessionPath = path.join(dir, "session.json");
