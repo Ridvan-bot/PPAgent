@@ -5,6 +5,8 @@
 
 import "dotenv/config";
 import * as readline from "node:readline/promises";
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 import { loadConfig } from "./config.js";
 import { builtinTools } from "./tools/index.js";
 import { loadAllSkills, buildSystemPrompt, collectTools } from "./skills/loader.js";
@@ -12,10 +14,7 @@ import { loadRules, formatRulesForPrompt } from "./rules.js";
 import { getOrCreateSession, appendToSession, getSessionMessages } from "./sessions.js";
 import { runAgent } from "./agent.js";
 import { logCli, logError } from "./logger.js";
-
-const BASE_SYSTEM_PROMPT = `You are PPAgent, an AI assistant.
-You have access to tools: read_file, write_file, list_dir, run_command. Use them when you need to read/write files, list directories, or run shell commands.
-Answer concisely. When suggesting code, use the project's existing style and dependencies.`;
+import { loadSystemPrompt } from "./prompts.js";
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -39,7 +38,24 @@ async function main(): Promise<void> {
 
   const skills = await loadAllSkills();
   logCli("Skills loaded", { count: skills.length, names: skills.map((s) => s.meta.name) });
-  const baseWithRules = BASE_SYSTEM_PROMPT + rulesBlock;
+  const baseSystemPrompt = await loadSystemPrompt();
+
+  // Läs in longterm-fil så att modellen alltid får innehållet i prompten.
+  let longtermText = "";
+  try {
+    const longtermPath = path.join(process.cwd(), ".agents", "longterm.md");
+    longtermText = await fs.readFile(longtermPath, "utf-8");
+  } catch {
+    // Ingen longterm-fil ännu – ignoreras.
+  }
+
+  const baseWithRules =
+    baseSystemPrompt +
+    rulesBlock +
+    (longtermText.trim().length > 0
+      ? `\n\n---\n\n# Longterm memory (inläst fil)\n\n${longtermText}`
+      : "");
+
   const systemPrompt = buildSystemPrompt(skills, baseWithRules);
   const tools = collectTools(skills, builtinTools);
 
@@ -72,7 +88,7 @@ async function main(): Promise<void> {
   }));
   logCli("Interactive session started", { sessionId: session.id, historyMessages: conversationHistory.length });
   console.log("PPAgent – interaktiv chat. Skriv meddelanden här, avsluta med 'exit'.");
-  console.log("Session:", session.id, "| Historik:", conversationHistory.length, "meddelanden | Skills:", skills.map((s) => s.meta.name).join(", ") || "inga");
+  console.log("Session:", session.id, "| Historik:", conversationHistory.length, "meddelanden");
   console.log("");
 
   while (true) {
