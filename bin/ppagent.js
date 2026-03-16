@@ -6,6 +6,7 @@
  *   ppagent start             – interaktiv chat (eller ppagent start "fråga")
  *   ppagent skills            – lista installerade skills
  *   ppagent install           – installera en skill (frågar efter namn/källa)
+ *   ppagent config            – konfigurera LLM-modell (OPENAI_MODEL i .env)
  */
 import { spawnSync } from "node:child_process";
 import path from "node:path";
@@ -16,6 +17,7 @@ const projectRoot = path.resolve(__dirname, "..");
 const cliPath = path.join(projectRoot, "src", "cli.ts");
 const skillsPath = path.join(projectRoot, "src", "commands", "list-skills.ts");
 const installPath = path.join(projectRoot, "src", "commands", "install-skill.ts");
+const configPath = path.join(projectRoot, "src", "commands", "config.ts");
 
 const subcommand = process.argv[2];
 
@@ -44,6 +46,11 @@ switch (subcommand) {
     runTsx(installPath, process.argv.slice(3));
     break;
   }
+  case "config": {
+    // ppagent config
+    runTsx(configPath, process.argv.slice(3));
+    break;
+  }
   default: {
     console.log("PPAgent");
     console.log("");
@@ -52,6 +59,7 @@ switch (subcommand) {
     console.log("  ppagent start \"fråga\"     Enskild fråga");
     console.log("  ppagent skills             Lista installerade skills");
     console.log("  ppagent install            Installera en skill");
+    console.log("  ppagent config             Konfigurera LLM-modell (OPENAI_MODEL i .env)");
     console.log("");
     console.log("Exempel:");
     console.log("  ppagent start");
