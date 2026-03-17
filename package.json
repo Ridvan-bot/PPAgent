@@ -9,6 +9,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "agent": "tsx src/cli.ts",
+    "agent:tui": "tsx src/tui.tsx",
     "agent:install": "tsx src/commands/install-skill.ts",
     "agent:skills": "tsx src/commands/list-skills.ts",
     "lint": "eslint src --ext .ts",
@@ -43,10 +44,14 @@
     "typescript": "^5.7.0"
   },
   "dependencies": {
+    "@types/react": "^19.2.14",
     "chalk": "^5.6.2",
     "conventional-changelog-conventionalcommits": "^8.0.0",
     "dotenv": "^16.4.5",
+    "ink": "^6.8.0",
+    "ink-text-input": "^6.0.0",
     "inquirer": "^9.3.7",
-    "openai": "^4.73.0"
+    "openai": "^4.73.0",
+    "react": "^19.2.4"
   }
 }

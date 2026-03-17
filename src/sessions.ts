@@ -9,7 +9,7 @@ import { randomBytes } from "node:crypto";
 
 const SESSIONS_DIR = ".agents/sessions";
 
-export type SessionType = "terminal" | "slack" | "slack-channel" | "slack-group";
+export type SessionType = "terminal" | "terminal-tui" | "slack" | "slack-channel" | "slack-group";
 
 export interface SessionMeta {
   /** Slack channel/group id when type is slack-* */
