@@ -1,6 +1,6 @@
 {
   "name": "pp-agent",
-  "version": "0.1.0",
+  "version": "1.3.0",
   "description": "AI assistant – runs in the terminal with interactive chat",
   "type": "module",
   "main": "dist/index.js",
@@ -9,6 +9,7 @@
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
     "agent": "tsx src/cli.ts",
+    "agent:tui": "tsx src/tui.tsx",
     "agent:install": "tsx src/commands/install-skill.ts",
     "agent:skills": "tsx src/commands/list-skills.ts",
     "lint": "eslint src --ext .ts",
@@ -30,19 +31,28 @@
   },
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^11.0.0",
+    "@semantic-release/commit-analyzer": "^13.0.0",
     "@semantic-release/git": "^10.0.1",
-    "@semantic-release/npm": "^10.0.4",
-    "@semantic-release/release-notes-generator": "^12.0.0",
+    "@semantic-release/github": "^11.0.1",
+    "@semantic-release/npm": "^12.0.1",
+    "@types/inquirer": "^9.0.9",
     "@types/node": "^22.10.0",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
     "eslint": "^9.15.0",
-    "semantic-release": "^23.0.0",
+    "semantic-release": "^24.2.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.0"
   },
   "dependencies": {
+    "@types/react": "^19.2.14",
     "chalk": "^5.6.2",
+    "conventional-changelog-conventionalcommits": "^8.0.0",
     "dotenv": "^16.4.5",
-    "openai": "^4.73.0"
+    "ink": "^6.8.0",
+    "ink-spinner": "^5.0.0",
+    "ink-text-input": "^6.0.0",
+    "inquirer": "^9.3.7",
+    "openai": "^4.73.0",
+    "react": "^19.2.4"
   }
 }

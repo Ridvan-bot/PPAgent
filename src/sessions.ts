@@ -9,7 +9,7 @@ import { randomBytes } from "node:crypto";
 
 const SESSIONS_DIR = ".agents/sessions";
 
-export type SessionType = "terminal" | "slack" | "slack-channel" | "slack-group";
+export type SessionType = "terminal" | "terminal-tui" | "slack" | "slack-channel" | "slack-group";
 
 export interface SessionMeta {
   /** Slack channel/group id when type is slack-* */
@@ -46,9 +46,6 @@ function safeSessionId(type: string, suffix: string): string {
   return `${type}-${safe}`;
 }
 
-/** Fixed session id for terminal – all terminal runs share this session. */
-const TERMINAL_SESSION_ID = "terminal";
-
 /**
  * Get or create a session. Terminal always uses the same session id so
  * conversation continues across restarts; other types get their own id per context.
@@ -58,11 +55,9 @@ export async function getOrCreateSession(
   meta?: SessionMeta
 ): Promise<Session> {
   const id =
-    type === "terminal"
-      ? TERMINAL_SESSION_ID
-      : type.startsWith("slack") && meta?.channelId
-        ? safeSessionId(type, meta.channelId)
-        : safeSessionId(type, `${Date.now()}-${randomBytes(2).toString("hex")}`);
+    type.startsWith("slack") && meta?.channelId
+      ? safeSessionId(type, meta.channelId)
+      : safeSessionId(type, `${Date.now()}-${randomBytes(2).toString("hex")}`);
 
   const dir = sessionDir(id);
   const sessionPath = path.join(dir, "session.json");
@@ -165,4 +160,29 @@ export async function listSessionIds(): Promise<string[]> {
   } catch {
     return [];
   }
+}
+
+/**
+ * Find the most recently updated session of a given type, or null if none exist.
+ */
+export async function getLatestSessionByType(type: SessionType): Promise<Session | null> {
+  const ids = await listSessionIds();
+  const candidates = ids.filter((id) => id.startsWith(`${type}-`));
+  if (candidates.length === 0) return null;
+
+  let latest: Session | null = null;
+  for (const id of candidates) {
+    const dir = sessionDir(id);
+    const sessionPath = path.join(dir, "session.json");
+    try {
+      const raw = await fs.readFile(sessionPath, "utf-8");
+      const session = JSON.parse(raw) as Session;
+      if (!latest || session.updatedAt > latest.updatedAt) {
+        latest = session;
+      }
+    } catch {
+      // ignore broken session
+    }
+  }
+  return latest;
 }
