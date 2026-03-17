@@ -20,7 +20,7 @@ on:
         required: false
         description: 'Slack webhook URL'
 jobs:
-  # Early exit job to complete workflow if branches is not "main"
+  # Early exit job to complete workflow  if branches is not "main"
   No-release:
     if: ${{ inputs.branches != 'main' }}
     runs-on: ubuntu-latest
