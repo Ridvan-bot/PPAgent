@@ -161,3 +161,28 @@ export async function listSessionIds(): Promise<string[]> {
     return [];
   }
 }
+
+/**
+ * Find the most recently updated session of a given type, or null if none exist.
+ */
+export async function getLatestSessionByType(type: SessionType): Promise<Session | null> {
+  const ids = await listSessionIds();
+  const candidates = ids.filter((id) => id.startsWith(`${type}-`));
+  if (candidates.length === 0) return null;
+
+  let latest: Session | null = null;
+  for (const id of candidates) {
+    const dir = sessionDir(id);
+    const sessionPath = path.join(dir, "session.json");
+    try {
+      const raw = await fs.readFile(sessionPath, "utf-8");
+      const session = JSON.parse(raw) as Session;
+      if (!latest || session.updatedAt > latest.updatedAt) {
+        latest = session;
+      }
+    } catch {
+      // ignore broken session
+    }
+  }
+  return latest;
+}

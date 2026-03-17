@@ -2,6 +2,7 @@
 import "dotenv/config";
 import React, { useState } from "react";
 import { render, Box, Text, useInput, useApp } from "ink";
+import Spinner from "ink-spinner";
 import TextInput from "ink-text-input";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -9,7 +10,12 @@ import { loadConfig } from "./config.js";
 import { builtinTools } from "./tools/index.js";
 import { loadAllSkills, buildSystemPrompt, collectTools } from "./skills/loader.js";
 import { loadRules, formatRulesForPrompt } from "./rules.js";
-import { getOrCreateSession, appendToSession, getSessionMessages } from "./sessions.js";
+import {
+  getOrCreateSession,
+  appendToSession,
+  getSessionMessages,
+  getLatestSessionByType,
+} from "./sessions.js";
 import { runAgent } from "./agent.js";
 import { logCli, logError } from "./logger.js";
 import { loadSystemPrompt } from "./prompts.js";
@@ -93,7 +99,13 @@ const Chat: React.FC<ChatProps> = ({ initialHistory, sessionId }) => {
               {m.content}
             </Text>
           ))}
-          {isBusy && <Text color="gray">Agenten tänker…</Text>}
+          {isBusy && (
+            <Box marginTop={1}>
+              <Text color="gray">
+                <Spinner type="dots" /> Agenten tänker…
+              </Text>
+            </Box>
+          )}
         </Box>
       </Box>
 
@@ -134,8 +146,17 @@ async function getRuntime() {
         config = loadConfig();
       } catch (e) {
         logError("config", e);
+        const msg = (e as Error).message ?? String(e);
+        if (
+          msg.includes("Missing OPENAI_API_KEY") ||
+          msg.includes("Missing ANTHROPIC_API_KEY")
+        ) {
+          throw new Error(
+            "Saknar API-nyckel. Kör 'ppagent config' för att konfigurera modell och OPENAI_API_KEY."
+          );
+        }
         throw new Error(
-          (e as Error).message +
+          msg +
             "\nSkapa en .env med OPENAI_API_KEY=... (eller sätt OPENAI_BASE_URL för kompatibel API)."
         );
       }
@@ -166,7 +187,13 @@ async function getRuntime() {
       const systemPrompt = buildSystemPrompt(skills, baseWithRules);
       const tools = collectTools(skills, builtinTools);
 
-      const session = await getOrCreateSession("terminal-tui");
+      const forceNew = process.env.PPAGENT_NEW_SESSION === "1";
+      const existing = forceNew ? null : await getLatestSessionByType("terminal-tui");
+      const session =
+        existing ??
+        (await getOrCreateSession("terminal-tui", {
+          label: "message",
+        }));
       const stored = await getSessionMessages(session.id, 100);
       const conversationHistory: ChatMessage[] = stored.map((m) => ({
         role: m.role as ChatMessage["role"],
@@ -190,7 +217,11 @@ async function main() {
     render(<Chat initialHistory={conversationHistory} sessionId={sessionId} />);
   } catch (e) {
     logError("tui main", e);
-    console.error(e);
+    if (e instanceof Error) {
+      console.error(e.message);
+    } else {
+      console.error(e);
+    }
     process.exit(1);
   }
 }

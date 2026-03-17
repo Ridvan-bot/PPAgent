@@ -19,6 +19,7 @@ const tuiPath = path.join(projectRoot, "src", "tui.tsx");
 const skillsPath = path.join(projectRoot, "src", "commands", "list-skills.ts");
 const installPath = path.join(projectRoot, "src", "commands", "install-skill.ts");
 const configPath = path.join(projectRoot, "src", "commands", "config.ts");
+const newSessionPath = path.join(projectRoot, "src", "commands", "new-session.ts");
 
 const subcommand = process.argv[2];
 
@@ -40,6 +41,11 @@ switch (subcommand) {
   case "tui": {
     // ppagent tui – TUI-baserad chat
     runTsx(tuiPath, process.argv.slice(3));
+    break;
+  }
+  case "new": {
+    // ppagent new session [label]
+    runTsx(newSessionPath, process.argv.slice(3));
     break;
   }
   case "skills": {
@@ -64,6 +70,7 @@ switch (subcommand) {
     console.log("  ppagent start              Interaktiv chat");
     console.log("  ppagent start \"fråga\"     Enskild fråga");
     console.log("  ppagent tui                TUI-baserad chat");
+    console.log("  ppagent new session        Skapa ny TUI-session (label 'message' som default)");
     console.log("  ppagent skills             Lista installerade skills");
     console.log("  ppagent install            Installera en skill");
     console.log("  ppagent config             Konfigurera LLM-modell (OPENAI_MODEL i .env)");
