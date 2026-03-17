@@ -10,7 +10,12 @@ import { loadConfig } from "./config.js";
 import { builtinTools } from "./tools/index.js";
 import { loadAllSkills, buildSystemPrompt, collectTools } from "./skills/loader.js";
 import { loadRules, formatRulesForPrompt } from "./rules.js";
-import { getOrCreateSession, appendToSession, getSessionMessages } from "./sessions.js";
+import {
+  getOrCreateSession,
+  appendToSession,
+  getSessionMessages,
+  getLatestSessionByType,
+} from "./sessions.js";
 import { runAgent } from "./agent.js";
 import { logCli, logError } from "./logger.js";
 import { loadSystemPrompt } from "./prompts.js";
@@ -182,7 +187,13 @@ async function getRuntime() {
       const systemPrompt = buildSystemPrompt(skills, baseWithRules);
       const tools = collectTools(skills, builtinTools);
 
-      const session = await getOrCreateSession("terminal-tui");
+      const forceNew = process.env.PPAGENT_NEW_SESSION === "1";
+      const existing = forceNew ? null : await getLatestSessionByType("terminal-tui");
+      const session =
+        existing ??
+        (await getOrCreateSession("terminal-tui", {
+          label: "message",
+        }));
       const stored = await getSessionMessages(session.id, 100);
       const conversationHistory: ChatMessage[] = stored.map((m) => ({
         role: m.role as ChatMessage["role"],
