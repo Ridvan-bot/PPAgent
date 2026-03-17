@@ -2,6 +2,7 @@
 import "dotenv/config";
 import React, { useState } from "react";
 import { render, Box, Text, useInput, useApp } from "ink";
+import Spinner from "ink-spinner";
 import TextInput from "ink-text-input";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
@@ -93,7 +94,13 @@ const Chat: React.FC<ChatProps> = ({ initialHistory, sessionId }) => {
               {m.content}
             </Text>
           ))}
-          {isBusy && <Text color="gray">Agenten tänker…</Text>}
+          {isBusy && (
+            <Box marginTop={1}>
+              <Text color="gray">
+                <Spinner type="dots" /> Agenten tänker…
+              </Text>
+            </Box>
+          )}
         </Box>
       </Box>
 
