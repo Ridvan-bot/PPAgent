@@ -64,6 +64,13 @@ async function main(): Promise<void> {
       .find((line) => line.startsWith("OPENAI_MODEL="))
       ?.split("=", 2)[1] ?? "");
 
+  const currentApiKey =
+    process.env.OPENAI_API_KEY ||
+    (lines
+      .map((line) => line.trim())
+      .find((line) => line.startsWith("OPENAI_API_KEY="))
+      ?.split("=", 2)[1] ?? "");
+
   const presetModels = [
     "gpt-4o-mini",
     "gpt-4o",
@@ -74,10 +81,26 @@ async function main(): Promise<void> {
 
   console.log("PPAgent – konfiguration");
   console.log("");
+
+  const { configureLLM } = await inquirer.prompt<{ configureLLM: boolean }>([
+    {
+      type: "confirm",
+      name: "configureLLM",
+      message: "Vill du konfigurera LLM (modell + OpenAI API-nyckel) nu?",
+      default: true,
+    },
+  ]);
+
+  if (!configureLLM) {
+    console.log("Ingen förändring gjord. LLM-konfigurationen lämnades oförändrad.");
+    return;
+  }
+
   console.log("Endast OpenAI-kompatibla modeller stöds just nu.");
   console.log("Välj en modell genom att markera med [space] och bekräfta med [enter].");
   console.log("");
   console.log(`Nuvarande OPENAI_MODEL: ${currentModel || "(inte satt)"}`);
+  console.log(`OPENAI_API_KEY: ${currentApiKey ? "(redan satt)" : "(inte satt)"}`);
   console.log("");
 
   const choices = [
@@ -128,12 +151,38 @@ async function main(): Promise<void> {
     return;
   }
 
-  const newLines = updateEnvLines(lines, "OPENAI_MODEL", selectedModel);
+  const { apiKeyInput } = await inquirer.prompt<{ apiKeyInput: string }>([
+    {
+      type: "password",
+      name: "apiKeyInput",
+      message: currentApiKey
+        ? "Ny OpenAI API-nyckel (lämna tomt för att behålla befintlig):"
+        : "Ange din OpenAI API-nyckel (OPENAI_API_KEY):",
+      mask: "*",
+      validate: (value: string) => {
+        if (!currentApiKey && value.trim() === "") {
+          return "API-nyckeln får inte vara tom när ingen nyckel finns sedan tidigare.";
+        }
+        return true;
+      },
+    },
+  ]);
+
+  const finalApiKey = apiKeyInput.trim() !== "" ? apiKeyInput.trim() : currentApiKey;
+
+  let newLines = updateEnvLines(lines, "OPENAI_MODEL", selectedModel);
+  if (finalApiKey) {
+    newLines = updateEnvLines(newLines, "OPENAI_API_KEY", finalApiKey);
+  }
+
   await fs.writeFile(envPath, newLines.join("\n") + "\n", "utf-8");
 
   console.log("");
   console.log(`Uppdaterade ${path.relative(process.cwd(), envPath)} med:`);
   console.log(`OPENAI_MODEL=${selectedModel}`);
+  if (finalApiKey) {
+    console.log("OPENAI_API_KEY=(satt)");
+  }
 }
 
 main().catch((err) => {

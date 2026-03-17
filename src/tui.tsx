@@ -141,8 +141,17 @@ async function getRuntime() {
         config = loadConfig();
       } catch (e) {
         logError("config", e);
+        const msg = (e as Error).message ?? String(e);
+        if (
+          msg.includes("Missing OPENAI_API_KEY") ||
+          msg.includes("Missing ANTHROPIC_API_KEY")
+        ) {
+          throw new Error(
+            "Saknar API-nyckel. Kör 'ppagent config' för att konfigurera modell och OPENAI_API_KEY."
+          );
+        }
         throw new Error(
-          (e as Error).message +
+          msg +
             "\nSkapa en .env med OPENAI_API_KEY=... (eller sätt OPENAI_BASE_URL för kompatibel API)."
         );
       }
@@ -197,7 +206,11 @@ async function main() {
     render(<Chat initialHistory={conversationHistory} sessionId={sessionId} />);
   } catch (e) {
     logError("tui main", e);
-    console.error(e);
+    if (e instanceof Error) {
+      console.error(e.message);
+    } else {
+      console.error(e);
+    }
     process.exit(1);
   }
 }
